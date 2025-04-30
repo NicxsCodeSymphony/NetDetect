@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
     FaTachometerAlt, FaNetworkWired, FaMobileAlt, FaChartLine, 
     FaFilter, FaBell, FaClipboardList, FaSignOutAlt, FaBars, FaTimes,
@@ -77,7 +77,7 @@ const Sidebar: React.FC = () => {
         return () => window.removeEventListener('resize', handleResize);
     }, [isOpen]);
 
-    const menuItems: MenuItem[] = [ 
+    const menuItems: MenuItem[] = useMemo(() => [
         { name: "Dashboard", route: "pages/dashboard", icon: <FaTachometerAlt /> },
         { name: "Network Status", route: "pages/dashboard/network-status", icon: <FaNetworkWired /> },
         { name: "Connected Devices", route: "pages/dashboard/connected-devices", icon: <FaMobileAlt /> },
@@ -91,7 +91,8 @@ const Sidebar: React.FC = () => {
             badgeCount: unreadNotifications
         },
         { name: "Logs", route: "pages/dashboard/logs", icon: <FaClipboardList /> }
-    ];
+    ], [unreadNotifications]);
+    
 
     const handleLogout = async (): Promise<void> => {
         try {
@@ -125,21 +126,18 @@ const Sidebar: React.FC = () => {
         }
     };
 
-    // Fetch notifications and check for new ones
-    const checkForNewNotifications = async (): Promise<void> => {
+    const checkForNewNotifications = useCallback(async (): Promise<void> => {
         try {
             const response = await axios.get<Notification[]>('http://localhost:8005/api/notifications');
-            
-            // Count notifications that came after the last checked timestamp
             const newNotifications = response.data.filter(
                 notification => new Date(notification.created_at) > new Date(lastCheckedTimestamp)
             );
-            
             setUnreadNotifications(newNotifications.length);
         } catch (error) {
             console.error("Error fetching notifications:", error);
         }
-    };
+    }, [lastCheckedTimestamp]);
+    
 
     // Setup polling for new notifications
     useEffect(() => {
@@ -151,7 +149,7 @@ const Sidebar: React.FC = () => {
         
         // Clean up on unmount
         return () => clearInterval(intervalId);
-    }, [lastCheckedTimestamp]);
+    }, [lastCheckedTimestamp, checkForNewNotifications]);
 
     // Update active item based on current route
     useEffect(() => {

@@ -1,6 +1,12 @@
 import React from 'react';
 
-const AlertModal = ({ show, onClose, message }) => {
+interface AlertModalProps {
+  show: boolean;
+  onClose: () => void;
+  message: string;
+}
+
+const AlertModal: React.FC<AlertModalProps> = ({ show, onClose, message }) => {
   if (!show) return null;
 
   return (

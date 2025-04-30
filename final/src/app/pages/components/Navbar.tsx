@@ -1,48 +1,46 @@
 "use client"
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
 	faHome,
 	faInfoCircle,
 	faPhone,
 	faSignInAlt,
-	faSignOutAlt,
 	faBars,
 	faTimes,
 } from "@fortawesome/free-solid-svg-icons";
-// import LoginModal from "../../auth/LoginModal"; // Adjust the path as necessary
 
-function Navbar({login}) {
+interface NavbarProps{
+	login: () => void
+}
+
+function Navbar({login}: NavbarProps) {
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-	const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
 	const toggleMobileMenu = () => {
 		setIsMobileMenuOpen((prev) => !prev);
 	};
 
 	const handleLoginOpen = () => {
-		setIsLoginModalOpen(true);
 		login();
 	};
 
-	const handleLoginClose = () => {
-		setIsLoginModalOpen(false);
-	};
 
-	const scrollHome = (e) => {
+	const scrollHome = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
 		e.preventDefault();
 		const aboutSection = document.querySelector(".homePage");
 		if (aboutSection) {
-			aboutSection.scrollIntoView({ behavior: "smooth" });
-			// Close mobile menu if it's open
-			if (isMobileMenuOpen) {
-				setIsMobileMenuOpen(false);
-			}
+		  aboutSection.scrollIntoView({ behavior: "smooth" });
+		  // Close mobile menu if it's open
+		  if (isMobileMenuOpen) {
+			setIsMobileMenuOpen(false);
+		  }
 		}
-	};
+	  };
+	  
 	
-	const scrollToAbout = (e) => {
+	const scrollToAbout = (e:React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
 		e.preventDefault();
 		const aboutSection = document.querySelector(".aboutInfo");
 		if (aboutSection) {
@@ -54,7 +52,7 @@ function Navbar({login}) {
 		}
 	};
 
-	const scrollContact = (e) => {
+	const scrollContact = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
 		e.preventDefault();
 		const aboutSection = document.querySelector(".contactUs");
 		if (aboutSection) {

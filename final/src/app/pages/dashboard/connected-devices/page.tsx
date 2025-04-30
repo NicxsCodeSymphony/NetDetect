@@ -1,20 +1,21 @@
 "use client"
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { fetchNetworks } from "@/app/lib/networkServer";
 import Sidebar from "@/app/components/Sidebar";
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 // Define types for our data
 interface NetworkDevice {
-  id: string;
-  hostname: string;
+  id: number; // Update to number if the id is actually a number
   ip_address: string;
   mac_address: string;
-  status: 'online' | 'offline';
-  device_type: string | null;
-  whitelist: boolean;
+  hostname: string;
+  manufacturer: string;
+  whitelist: number;
+  status: string;
+  created_at: string;
   updated_at: string;
-  [key: string]: string | boolean | null | undefined; 
+  device_type: string | null; // Assuming `device_type` can be string or null
 }
 
 interface DeviceStats {
@@ -57,20 +58,27 @@ export default function ConnectedDevices() {
     whitelist: { true: 0, false: 0 },
   });
 
-  // Fetch data
-  const fetchData = async (): Promise<void> => {
+  const fetchData = useCallback(async (): Promise<void> => {
     setLoading(true);
     try {
       const res = await fetchNetworks();
-      setNetworks(res);
-      calculateStats(res);
+      
+      // Transform the Networks[] to NetworkDevice[] by adding the missing device_type field
+      const transformedData: NetworkDevice[] = res.map(device => ({
+        ...device,
+        device_type: null // Set a default value for device_type
+      }));
+      
+      setNetworks(transformedData);
+      calculateStats(transformedData);
     } catch (err) {
       console.error(err);
       setError("Failed to load network data");
     } finally {
       setLoading(false);
     }
-  };
+  }, []); 
+  
 
   // Calculate statistics
   const calculateStats = (data: NetworkDevice[]): void => {
@@ -207,10 +215,9 @@ export default function ConnectedDevices() {
 
   useEffect(() => {
     fetchData();
-    // Set up a refresh interval (every 60 seconds)
     const interval = setInterval(fetchData, 60000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchData]);
 
   // Color palette for charts
   const colors = ["#8884d8", "#82ca9d", "#ffc658", "#ff8042", "#0088FE", "#00C49F", "#FFBB28", "#FF8042"];

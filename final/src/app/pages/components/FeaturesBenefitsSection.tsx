@@ -6,22 +6,25 @@ import emailjs from "@emailjs/browser";
 const FeaturesBenefitsSection = () => {
   const [formData, setFormData] = useState({
     name: '',
-    message: ''
+    message: '',
+    email: ''
   });
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prevState => ({
       ...prevState,
       [name]: value
     }));
   };
+  
+  
 
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setSuccessMessage("");
@@ -298,7 +301,7 @@ const FeaturesBenefitsSection = () => {
           >
             <div className="bg-white rounded-xl shadow-lg p-8 mb-10 border-l-4 border-blue-500">
               <p className="text-gray-700 leading-relaxed">
-                Additionally, we invite administrators and staff to participate in user testing. Through their feedback, gathered via a structured questionnaire, we ensure the system's effectiveness and usability for educational environments. Together, we aspire to make networks safer and more efficient for all users while maintaining the highest standards of security.
+                Additionally, we invite administrators and staff to participate in user testing. Through their feedback, gathered via a structured questionnaire, we ensure the system&apos;s effectiveness and usability for educational environments. Together, we aspire to make networks safer and more efficient for all users while maintaining the highest standards of security.
               </p>
             </div>
             
@@ -317,7 +320,7 @@ const FeaturesBenefitsSection = () => {
               </p>
               <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
                 <p className="text-gray-700 italic">
-                  "Our goal is to create technology that not only solves problems but does so with integrity and respect for all stakeholders."
+                  &ldquo;Our goal is to create technology that not only solves problems but does so with integrity and respect for all stakeholders.&rdquo;
                 </p>
               </div>
             </motion.div>
@@ -346,7 +349,7 @@ const FeaturesBenefitsSection = () => {
           transition={{ delay: 0.2, duration: 0.8 }}
         >
           <p className="text-gray-300 mb-2">
-            Have questions or feedback? Fill out the form below, and we'll get
+            Have questions or feedback? Fill out the form below, and we&apos;ll get
             back to you as soon as possible!
           </p>
         </motion.div>
@@ -400,7 +403,7 @@ const FeaturesBenefitsSection = () => {
               name="message"
               value={formData.message}
               onChange={handleChange}
-              rows="5"
+              rows={5}
               className="w-full bg-gray-700 border border-gray-600 rounded-lg py-3 px-4 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
               placeholder="Type your message here..."
               required

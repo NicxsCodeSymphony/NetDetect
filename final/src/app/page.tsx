@@ -1,7 +1,6 @@
 "use client"
 
 import React, { useState, FormEvent, ChangeEvent } from "react";
-import Footer from "@/app/components/Sidebar"
 import { Cobe } from "@/app/pages/components/Cobe"
 import TypingEffect from "@/app/pages/components/TypingEffect"
 import Navbar from "@/app/pages/components/Navbar"
@@ -13,7 +12,6 @@ import {
   GoogleAuthProvider, 
   signInWithPopup,
   AuthError,
-  AuthErrorCodes
 } from "firebase/auth";
 
 function Home() {
@@ -243,7 +241,6 @@ function Home() {
       
       <FeaturesBenefitsSection />
 
-      {/* <Footer /> */}
       
       {/* Add these animation classes to your global CSS or tailwind config */}
       <style jsx>{`
