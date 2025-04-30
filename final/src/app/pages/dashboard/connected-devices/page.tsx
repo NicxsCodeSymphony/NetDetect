@@ -4,18 +4,52 @@ import { fetchNetworks } from "@/app/lib/networkServer";
 import Sidebar from "@/app/components/Sidebar";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
 
-export default function ConnectedDevices() {
-  const [networks, setNetworks] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [deviceTypeFilter, setDeviceTypeFilter] = useState("all");
-  const [whitelistFilter, setWhitelistFilter] = useState("all");
-  const [sortConfig, setSortConfig] = useState({ key: 'updated_at', direction: 'desc' });
+// Define types for our data
+interface NetworkDevice {
+  id: string;
+  hostname: string;
+  ip_address: string;
+  mac_address: string;
+  status: 'online' | 'offline';
+  device_type: string | null;
+  whitelist: boolean;
+  updated_at: string;
+  [key: string]: string | boolean | null | undefined; 
+}
 
-  // Stats
-  const [stats, setStats] = useState({
+interface DeviceStats {
+  total: number;
+  online: number;
+  offline: number;
+  deviceTypes: Record<string, number>;
+  whitelist: {
+    true: number;
+    false: number;
+  };
+}
+
+interface SortConfig {
+  key: keyof NetworkDevice;
+  direction: 'asc' | 'desc';
+}
+
+interface ChartDataItem {
+  name: string;
+  value: number;
+  color: string;
+}
+
+export default function ConnectedDevices() {
+  const [networks, setNetworks] = useState<NetworkDevice[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [deviceTypeFilter, setDeviceTypeFilter] = useState<string>("all");
+  const [whitelistFilter, setWhitelistFilter] = useState<string>("all");
+  const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'updated_at', direction: 'desc' });
+
+  const [stats, setStats] = useState<DeviceStats>({
     total: 0,
     online: 0,
     offline: 0,
@@ -24,7 +58,7 @@ export default function ConnectedDevices() {
   });
 
   // Fetch data
-  const fetchData = async () => {
+  const fetchData = async (): Promise<void> => {
     setLoading(true);
     try {
       const res = await fetchNetworks();
@@ -39,14 +73,14 @@ export default function ConnectedDevices() {
   };
 
   // Calculate statistics
-  const calculateStats = (data) => {
+  const calculateStats = (data: NetworkDevice[]): void => {
     if (!data || !data.length) return;
 
     const onlineCount = data.filter(device => device.status === "online").length;
     const offlineCount = data.filter(device => device.status === "offline").length;
     
     // Calculate device types
-    const deviceTypes = data.reduce((acc, device) => {
+    const deviceTypes = data.reduce<Record<string, number>>((acc, device) => {
       const type = device.device_type || "Unknown";
       acc[type] = (acc[type] || 0) + 1;
       return acc;
@@ -66,8 +100,8 @@ export default function ConnectedDevices() {
   };
 
   // Sorting function
-  const requestSort = (key) => {
-    let direction = 'asc';
+  const requestSort = (key: keyof NetworkDevice): void => {
+    let direction: 'asc' | 'desc' = 'asc';
     if (sortConfig.key === key && sortConfig.direction === 'asc') {
       direction = 'desc';
     }
@@ -75,7 +109,7 @@ export default function ConnectedDevices() {
   };
 
   // Apply sorting, filtering and searching
-  const getFilteredData = () => {
+  const getFilteredData = (): NetworkDevice[] => {
     return networks
       .filter(device => {
         const matchesSearch = 
@@ -100,19 +134,42 @@ export default function ConnectedDevices() {
         return matchesSearch && matchesStatus && matchesDeviceType && matchesWhitelist;
       })
       .sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) {
+        const aValue = a[sortConfig.key];
+        const bValue = b[sortConfig.key];
+        
+        // Handle null or undefined values
+        if (aValue === null || aValue === undefined) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (bValue === null || bValue === undefined) return sortConfig.direction === 'asc' ? 1 : -1;
+        
+        // Handle string comparison
+        if (typeof aValue === 'string' && typeof bValue === 'string') {
+          return sortConfig.direction === 'asc' 
+            ? aValue.localeCompare(bValue)
+            : bValue.localeCompare(aValue);
+        }
+        
+        // Handle boolean comparison
+        if (typeof aValue === 'boolean' && typeof bValue === 'boolean') {
+          return sortConfig.direction === 'asc'
+            ? (aValue === bValue ? 0 : aValue ? 1 : -1)
+            : (aValue === bValue ? 0 : aValue ? -1 : 1);
+        }
+        
+        // Generic comparison for other types
+        if (aValue < bValue) {
           return sortConfig.direction === 'asc' ? -1 : 1;
         }
-        if (a[sortConfig.key] > b[sortConfig.key]) {
+        if (aValue > bValue) {
           return sortConfig.direction === 'asc' ? 1 : -1;
         }
+        
         return 0;
       });
   };
 
   // Generate unique device types for filter dropdown
-  const getUniqueDeviceTypes = () => {
-    const types = new Set();
+  const getUniqueDeviceTypes = (): string[] => {
+    const types = new Set<string>();
     networks.forEach(device => {
       if (device.device_type) types.add(device.device_type);
     });
@@ -120,20 +177,20 @@ export default function ConnectedDevices() {
   };
 
   // Format date for display
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
     return date.toLocaleString();
   };
 
   // Prepare chart data
-  const prepareStatusChartData = () => {
+  const prepareStatusChartData = (): ChartDataItem[] => {
     return [
       { name: "Online", value: stats.online, color: "#4CAF50" },
       { name: "Offline", value: stats.offline, color: "#F44336" },
     ];
   };
 
-  const prepareDeviceTypeChartData = () => {
+  const prepareDeviceTypeChartData = (): ChartDataItem[] => {
     return Object.entries(stats.deviceTypes).map(([name, value], index) => ({
       name,
       value,
@@ -141,7 +198,7 @@ export default function ConnectedDevices() {
     }));
   };
 
-  const prepareWhitelistChartData = () => {
+  const prepareWhitelistChartData = (): ChartDataItem[] => {
     return [
       { name: "Whitelisted", value: stats.whitelist.true, color: "#8884d8" },
       { name: "Not Whitelisted", value: stats.whitelist.false, color: "#82ca9d" },
@@ -159,7 +216,7 @@ export default function ConnectedDevices() {
   const colors = ["#8884d8", "#82ca9d", "#ffc658", "#ff8042", "#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
   // Calculate last updated time
-  const getLastUpdatedTime = () => {
+  const getLastUpdatedTime = (): string => {
     if (networks.length === 0) return "N/A";
     
     const dates = networks.map(d => new Date(d.updated_at).getTime());
@@ -172,7 +229,7 @@ export default function ConnectedDevices() {
   const uniqueDeviceTypes = getUniqueDeviceTypes();
 
   // Calculate time since last activity for each device
-  const getTimeSinceUpdate = (dateString) => {
+  const getTimeSinceUpdate = (dateString: string): string => {
     const updateTime = new Date(dateString).getTime();
     const currentTime = new Date().getTime();
     const diffInMinutes = Math.floor((currentTime - updateTime) / (1000 * 60));
@@ -241,7 +298,7 @@ export default function ConnectedDevices() {
                       cx="50%"
                       cy="50%"
                       labelLine={true}
-                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      label={({ name, percent }: { name: string, percent: number }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"
@@ -287,7 +344,7 @@ export default function ConnectedDevices() {
                       cx="50%"
                       cy="50%"
                       labelLine={true}
-                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      label={({ name, percent }: { name: string, percent: number }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"
@@ -347,7 +404,7 @@ export default function ConnectedDevices() {
                   onChange={(e) => setDeviceTypeFilter(e.target.value)}
                 >
                   <option value="all">All Types</option>
-                  {uniqueDeviceTypes.map(type => (
+                  {uniqueDeviceTypes.map((type) => (
                     <option key={type} value={type}>{type}</option>
                   ))}
                 </select>
@@ -426,7 +483,7 @@ export default function ConnectedDevices() {
                   <tbody className="bg-white divide-y divide-gray-200">
                     {filteredData.length === 0 ? (
                       <tr>
-                        <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
+                        <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
                           No devices match your filters
                         </td>
                       </tr>

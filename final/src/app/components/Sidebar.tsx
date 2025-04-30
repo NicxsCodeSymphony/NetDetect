@@ -12,7 +12,6 @@ import axios from 'axios';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
-// Define types for menu items and notifications
 interface MenuItem {
     name: string;
     route: string;
@@ -79,19 +78,19 @@ const Sidebar: React.FC = () => {
     }, [isOpen]);
 
     const menuItems: MenuItem[] = [ 
-        { name: "Dashboard", route: "dashboard", icon: <FaTachometerAlt /> },
-        { name: "Network Status", route: "network-status", icon: <FaNetworkWired /> },
-        { name: "Connected Devices", route: "connected-devices", icon: <FaMobileAlt /> },
-        { name: "Bandwidth Usage", route: "bandwidth-usage", icon: <FaChartLine /> },
-        { name: "Mac Filtering", route: "mac-filtering", icon: <FaFilter /> },
+        { name: "Dashboard", route: "pages/dashboard", icon: <FaTachometerAlt /> },
+        { name: "Network Status", route: "pages/dashboard/network-status", icon: <FaNetworkWired /> },
+        { name: "Connected Devices", route: "pages/dashboard/connected-devices", icon: <FaMobileAlt /> },
+        { name: "Bandwidth Usage", route: "pages/dashboard/bandwidth-usage", icon: <FaChartLine /> },
+        { name: "Mac Filtering", route: "pages/dashboard/mac-filtering", icon: <FaFilter /> },
         { 
             name: "Notifications", 
-            route: "notifications", 
+            route: "pages/dashboard/notifications", 
             icon: <FaBell />,
             hasBadge: unreadNotifications > 0,
             badgeCount: unreadNotifications
         },
-        { name: "Logs", route: "logs", icon: <FaClipboardList /> }
+        { name: "Logs", route: "pages/dashboard/logs", icon: <FaClipboardList /> }
     ];
 
     const handleLogout = async (): Promise<void> => {
