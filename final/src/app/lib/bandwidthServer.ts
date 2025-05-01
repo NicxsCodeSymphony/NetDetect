@@ -26,13 +26,12 @@ export const fetchBandwidthById = async (id: number): Promise<Bandwidths[]> => {
 }
 
 
-export const fetchTotalBandwidth = async (): Promise<TotalBandWidth[]> => {
-    try{
-        const res = await axios.get<TotalBandWidth[]>(`${url}/totals`)
+export const fetchTotalBandwidth = async (): Promise<TotalBandWidth> => {
+    try {
+        const res = await axios.get<TotalBandWidth>(`${url}/totals`)
         return res.data
-    }
-    catch(err){
+    } catch (err) {
         console.error("Failed to fetch total bandwidth: ", err)
-        return []
+        return {} as TotalBandWidth 
     }
 }
