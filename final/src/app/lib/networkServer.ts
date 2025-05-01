@@ -1,7 +1,7 @@
 import axios from "axios"
 import type { Networks, NetworkWithBandwidth, UnblockProp } from "./network"
 
-const url = "http://localhost:3002/networks/"
+const url = "https://netdetect-api.vercel.app/networks/"
 
 export const fetchNetworks = async (): Promise<Networks[]> =>{
     try{

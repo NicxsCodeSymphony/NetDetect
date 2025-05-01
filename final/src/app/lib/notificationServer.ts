@@ -1,7 +1,7 @@
 import type { Notification } from "./notification"
 import axios from "axios"
 
-const url = "http://localhost:3002/notification"
+const url = "https://netdetect-api.vercel.app/notification"
 
 export const getNotification = async(): Promise<Notification[]> => {
     try{
