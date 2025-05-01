@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { Bandwidths, TotalBandWidth } from "./bandwidth";
 
-const url = "http://localhost:3002/bandwidth"
+const url = "https://netdetect-api.vercel.app/bandwidth"
 
 export const fetchBandwidth = async (): Promise<Bandwidths[]> => {
     try{
