@@ -79,7 +79,7 @@ const Sidebar: React.FC = () => {
 
     const menuItems: MenuItem[] = useMemo(() => [
         { name: "Dashboard", route: "pages/dashboard", icon: <FaTachometerAlt /> },
-        { name: "Network Status", route: "pages/dashboard/network-status", icon: <FaNetworkWired /> },
+        { name: "Network Status", route: "pages/dashboard/status", icon: <FaNetworkWired /> },
         { name: "Connected Devices", route: "pages/dashboard/connected-devices", icon: <FaMobileAlt /> },
         { name: "Bandwidth Usage", route: "pages/dashboard/bandwidth-usage", icon: <FaChartLine /> },
         { name: "Mac Filtering", route: "pages/dashboard/macFilter", icon: <FaFilter /> },

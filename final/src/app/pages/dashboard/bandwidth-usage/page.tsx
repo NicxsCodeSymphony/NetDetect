@@ -14,7 +14,29 @@ type GroupedBandwidth = {
     upload: number
     bandwidth: number
     count: number
-  }
+}
+
+const formatBytes = (bytes: number, decimals = 2) => {
+    if (bytes === 0) return '0 B';
+    
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB'];
+    
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(decimals)) + ' ' + sizes[i];
+}
+
+const formatBandwidth = (bitsPerSecond: number, decimals = 2) => {
+    if (bitsPerSecond === 0) return '0 bps';
+    
+    const k = 1000; 
+    const sizes = ['bps', 'Kbps', 'Mbps', 'Gbps', 'Tbps'];
+    
+    const i = Math.floor(Math.log(bitsPerSecond) / Math.log(k));
+    
+    return parseFloat((bitsPerSecond / Math.pow(k, i)).toFixed(decimals)) + ' ' + sizes[i];
+}
 
 export default function Bandwidth() {
     const [bandwidths, setBandwidths] = useState<Bandwidths[]>([])
@@ -32,11 +54,22 @@ export default function Bandwidth() {
         try {
             const bandwidthRes = await fetchBandwidth()
             const totalBandRes = await fetchTotalBandwidth()
-            setTotalDownload(totalBandRes[0].total_download)
-            setTotalUpload(totalBandRes[0].total_upload)
-            setTotalUsage(totalBandRes[0].total_usage)
+    
+            // Convert the object to an array (if needed, e.g., using Object.values)
+            const totalBandResArray = Array.isArray(totalBandRes) ? totalBandRes : [totalBandRes]
+    
+            // Log the response to inspect it
+            console.log("totalBandResArray:", totalBandResArray)
+    
+            // Assuming totalBandRes is now an array, you can access the first item
+            if (totalBandResArray.length > 0) {
+                const total = totalBandResArray[0]
+                setTotalDownload(total.total_download)
+                setTotalUpload(total.total_upload)
+                setTotalUsage(total.total_usage)
+            }
+    
             setBandwidths(bandwidthRes)
-            
             setLastUpdated(new Date())
         } catch (err) {
             console.error(err)
@@ -44,6 +77,10 @@ export default function Bandwidth() {
             setLoading(false)
         }
     }, [])
+    
+    
+    
+    
 
     useEffect(() => {
         fetchData() // Initial fetch
@@ -51,13 +88,11 @@ export default function Bandwidth() {
         return () => clearInterval(interval)
     }, [fetchData, intervalTime])
 
-    // Group data by minute for chart display
     const groupDataByMinute = (data: Bandwidths[]) => {
         const groupedData: { [key: string]: GroupedBandwidth } = {}
         
         data.forEach(item => {
             const date = new Date(item.created_at)
-            // Format to minute precision (YYYY-MM-DD HH:MM)
             const minuteKey = date.toISOString().substring(0, 16)
             
             if (!groupedData[minuteKey]) {
@@ -78,23 +113,46 @@ export default function Bandwidth() {
         })
         
         return Object.values(groupedData).sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
-
     }
-
-    // Calculate totals for the summary cards
-    const totalDownload = bandwidths.reduce((sum, item) => sum + item.download, 0)
-    const totalUpload = bandwidths.reduce((sum, item) => sum + item.upload, 0)
-    
     const chartData = groupDataByMinute(bandwidths)
+    
     const totalBandwidthPieData = [
-        { name: 'Download', value: totalDownloads, color: '#3b82f6' },
-        { name: 'Upload', value: totalUploads, color: '#10b981' }
+        { name: 'Download', value: totalDownloads, color: '#3b82f6', formattedValue: formatBytes(totalDownloads) },
+        { name: 'Upload', value: totalUploads, color: '#10b981', formattedValue: formatBytes(totalUploads) }
     ]
 
-    // Function to change interval
     const changeInterval = (minutes: number) => {
         setIntervalTime(minutes * 60 * 1000)
     }
+
+    interface TooltipProps {
+        active?: boolean;
+        payload?: Array<{
+            name: string;
+            value: number;
+            dataKey: string;
+            color: string;
+        }>;
+        label?: string;
+    }
+
+    const CustomTooltip: React.FC<TooltipProps> = ({ active, payload, label }) => {
+        if (active && payload && payload.length) {
+            return (
+                <div className="bg-white p-4 border border-gray-200 rounded-md shadow-md">
+                    <p className="font-semibold">{label}</p>
+                    {payload.map((entry, index) => (
+                        <p key={index} style={{ color: entry.color }}>
+                            {entry.name}: {entry.dataKey.includes('bandwidth') 
+                                ? formatBandwidth(entry.value) 
+                                : formatBytes(entry.value)}
+                        </p>
+                    ))}
+                </div>
+            );
+        }
+        return null;
+    };
 
     return (
         <div className="flex h-screen bg-white">
@@ -171,7 +229,7 @@ export default function Bandwidth() {
                                     
                                     <div>
                                         <p className="text-gray-500 mb-1">Total Download</p>
-                                        <h2 className="text-4xl font-bold text-gray-800">{totalDownload} <span className="text-lg font-normal text-gray-400">MB</span></h2>
+                                        <h2 className="text-4xl font-bold text-gray-800">{formatBytes(totalDownloads)}</h2>
                                     </div>
                                     
                                     <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-blue-100 rounded-full opacity-50"></div>
@@ -199,7 +257,7 @@ export default function Bandwidth() {
                                     
                                     <div>
                                         <p className="text-gray-500 mb-1">Total Upload</p>
-                                        <h2 className="text-4xl font-bold text-gray-800">{totalUpload} <span className="text-lg font-normal text-gray-400">MB</span></h2>
+                                        <h2 className="text-4xl font-bold text-gray-800">{formatBytes(totalUploads)}</h2>
                                     </div>
                                     
                                     <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-emerald-100 rounded-full opacity-50"></div>
@@ -226,7 +284,7 @@ export default function Bandwidth() {
                                     
                                     <div>
                                         <p className="text-gray-500 mb-1">Total Bandwidth</p>
-                                        <h2 className="text-4xl font-bold text-gray-800">{totalUsage} <span className="text-lg font-normal text-gray-400">Mbps</span></h2>
+                                        <h2 className="text-4xl font-bold text-gray-800">{formatBandwidth(totalUsage)}</h2>
                                     </div>
                                     
                                     <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-purple-100 rounded-full opacity-50"></div>
@@ -280,15 +338,15 @@ export default function Bandwidth() {
                                             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                                             <XAxis dataKey="time" stroke="#6b7280" />
                                             <YAxis stroke="#6b7280" />
-                                            <Tooltip contentStyle={{ backgroundColor: 'white', borderColor: '#e5e7eb' }} />
+                                            <Tooltip content={<CustomTooltip />} />
                                             <Legend />
                                             {(activeSection === 'speed' || activeSection === 'all') && (
-                                                <Area type="monotone" dataKey="bandwidth" stroke="#8884d8" fillOpacity={1} fill="url(#colorBandwidth)" name="Bandwidth (Mbps)" />
+                                                <Area type="monotone" dataKey="bandwidth" stroke="#8884d8" fillOpacity={1} fill="url(#colorBandwidth)" name="Bandwidth" />
                                             )}
                                             {(activeSection === 'traffic' || activeSection === 'all') && (
                                                 <>
-                                                    <Area type="monotone" dataKey="upload" stroke="#10b981" fillOpacity={1} fill="url(#colorUpload)" name="Upload (MB)" />
-                                                    <Area type="monotone" dataKey="download" stroke="#3b82f6" fillOpacity={1} fill="url(#colorDownload)" name="Download (MB)" />
+                                                    <Area type="monotone" dataKey="upload" stroke="#10b981" fillOpacity={1} fill="url(#colorUpload)" name="Upload" />
+                                                    <Area type="monotone" dataKey="download" stroke="#3b82f6" fillOpacity={1} fill="url(#colorDownload)" name="Download" />
                                                 </>
                                             )}
                                         </AreaChart>
@@ -310,19 +368,24 @@ export default function Bandwidth() {
                                                 outerRadius={100}
                                                 paddingAngle={5}
                                                 dataKey="value"
-                                                label={({ name, value, percent }) => `${name}: ${value}GB (${(percent * 100).toFixed(0)}%)`}
+                                                label={({ name, formattedValue, percent }) => 
+                                                    `${name}: ${formattedValue} (${(percent * 100).toFixed(0)}%)`
+                                                }
                                                 labelLine={false}
                                             >
                                                 {totalBandwidthPieData.map((entry, index) => (
                                                     <Cell key={`cell-${index}`} fill={entry.color} />
                                                 ))}
                                             </Pie>
-                                            <Tooltip contentStyle={{ backgroundColor: 'white', borderColor: '#e5e7eb' }} />
+                                            <Tooltip 
+                                                formatter={(value: number, name: string) => [formatBytes(value), name]}
+                                                contentStyle={{ backgroundColor: 'white', borderColor: '#e5e7eb' }} 
+                                            />
                                         </PieChart>
                                     </ResponsiveContainer>
                                 </div>
                                 <div className="text-center text-lg font-semibold mt-4">
-                                    Total Usage: {totalUsage}
+                                    Total Usage: {formatBandwidth(totalUsage)}
                                 </div>
                             </div>
                         </div>
