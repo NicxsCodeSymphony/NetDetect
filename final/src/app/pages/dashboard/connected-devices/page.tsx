@@ -106,7 +106,7 @@ export default function ConnectedDevices() {
     
     // Calculate device types
     const deviceTypes = data.reduce<Record<string, number>>((acc, device) => {
-      const type = device.manufacturer || "Unknown";
+      const type = device.device_type || "Unknown";
       acc[type] = (acc[type] || 0) + 1;
       return acc;
     }, {});
@@ -225,8 +225,8 @@ export default function ConnectedDevices() {
 
   const prepareBlockedChartData = (): ChartDataItem[] => {
     return [
-      { name: "Allowed", value: stats.whitelist.true, color: "#3b82f6" },
-      { name: "Blocked", value: stats.whitelist.false, color: "#ef4444" },
+      { name: "Allowed", value: stats.whitelist.false, color: "#3b82f6" },
+      { name: "Blocked", value: stats.whitelist.true, color: "#ef4444" },
     ];
   };
 
@@ -399,7 +399,7 @@ export default function ConnectedDevices() {
             <div>
               <p className="text-gray-500 mb-1">Blocked Devices</p>
               <h2 className="text-4xl font-bold text-gray-800">
-                <span className="transition-all duration-300">{stats.whitelist.false}</span>
+                <span className="transition-all duration-300">{stats.whitelist.true}</span>
               </h2>
             </div>
             
@@ -530,8 +530,8 @@ export default function ConnectedDevices() {
                 onChange={(e) => setWhitelistFilter(e.target.value)}
               >
                 <option value="all">All</option>
-                <option value="true">Allowed</option>
-                <option value="false">Blocked</option>
+                <option value="false">Allowed</option>
+                <option value="true">Blocked</option>
               </select>
             </div>
             
@@ -624,13 +624,13 @@ export default function ConnectedDevices() {
                           <div className="text-sm text-gray-500 font-mono">{device.mac_address}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-500">{device.manufacturer || "Unknown"}</div>
+                          <div className="text-sm text-gray-500">{device.device_type || "Unknown"}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`px-3 py-1 text-xs rounded-full ${
-                            device.whitelist ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'
+                            device.status ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'
                           }`}>
-                            {device.whitelist ? "Allowed" : "Blocked"}
+                            {device.status ? "Allowed" : "Blocked"}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

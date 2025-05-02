@@ -1,0 +1,29 @@
+2025-05-02 19:32:48,274 - mysql.connector - INFO - package: mysql.connector.plugins
+2025-05-02 19:32:48,275 - mysql.connector - INFO - plugin_name: caching_sha2_password
+2025-05-02 19:32:48,275 - mysql.connector - INFO - AUTHENTICATION_PLUGIN_CLASS: MySQLCachingSHA2PasswordAuthPlugin
+2025-05-02 19:32:48,375 - traffic_classifier - INFO - Database initialized successfully
+2025-05-02 19:32:48,375 - traffic_classifier - INFO - Traffic classification model not found, will be trained on first use
+2025-05-02 19:34:18,785 - traffic_classifier - INFO - Starting traffic classification model training
+2025-05-02 19:34:18,821 - traffic_classifier - ERROR - Error updating training status: (mysql.connector.errors.DatabaseError) 1093 (HY000): You can't specify target table 'training_status' for update in FROM clause
+[SQL: 
+            UPDATE training_status 
+            SET status = 'running', 
+                progress = 0.1, 
+                details = 'Fetching training data',
+                completed_at = NULL
+            WHERE model_type = 'traffic_classifier' 
+            AND id = (SELECT MAX(id) FROM training_status WHERE model_type = 'traffic_classifier')
+            ]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+2025-05-02 19:34:18,861 - traffic_classifier - ERROR - Error training traffic classification model: List argument must consist only of tuples or dictionaries
+2025-05-02 19:34:18,896 - traffic_classifier - ERROR - Error updating training status: (mysql.connector.errors.DatabaseError) 1093 (HY000): You can't specify target table 'training_status' for update in FROM clause
+[SQL: 
+            UPDATE training_status 
+            SET status = 'error', 
+                progress = 0.0, 
+                details = 'Error training traffic classification model: List argument must consist only of tuples or dictionaries',
+                completed_at = 'NOW()'
+            WHERE model_type = 'traffic_classifier' 
+            AND id = (SELECT MAX(id) FROM training_status WHERE model_type = 'traffic_classifier')
+            ]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)

@@ -17,3 +17,18 @@ class NetworkData(BaseModel):
     
     class Config:
         orm_mode = True
+
+class NetworkDataWithBandwidth(BaseModel):
+    id: int
+    ip_address: Optional[str] = None
+    mac_address: Optional[str] = None
+    hostname: Optional[str] = None
+    manufacturer: Optional[str] = None
+    device_type: Optional[str] = None
+    whitelist: Optional[bool] = False
+    status: Optional[str] = "Active"
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+    upload: Optional[int] = None
+    download: Optional[int] = None
+    bandwidth_timestamp: Optional[str] = None

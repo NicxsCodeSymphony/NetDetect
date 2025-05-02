@@ -131,7 +131,7 @@ export default function NotificationPage() {
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   
-  const notificationTypes = ["download_spike", "upload_spike", "bandwidth_issue", "server_error"];
+  const notificationTypes = ["low_medium_download", "low_medium_upload"];
 
   const fetchData = useCallback(async (): Promise<void> => {
     setLoading(true);
@@ -678,11 +678,11 @@ export default function NotificationPage() {
                 >
                   Close
                 </button>
-                <button
+                {/* <button
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   Mark as Resolved
-                </button>
+                </button> */}
               </div>
             </div>
           </div>

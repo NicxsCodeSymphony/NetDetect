@@ -40,6 +40,7 @@ export default function Logs() {
         try {
             const res = await fetchNetworksWithBandwidth()
             setNetworks(res)
+            console.log(res)
         } catch (err) {
             console.error(err)
         } finally {
@@ -272,7 +273,7 @@ export default function Logs() {
                         <h3 className="text-sm font-medium text-gray-500">Offline Devices</h3>
                         <p className="text-2xl font-bold text-red-600">{networkStats.offlineDevices}</p>
                     </div>
-                    <div className="bg-white rounded-lg shadow p-4">
+                    {/* <div className="bg-white rounded-lg shadow p-4">
                         <h3 className="text-sm font-medium text-gray-500">Avg. Bandwidth</h3>
                         <div className="flex items-center mt-1">
                             <Download className="h-4 w-4 text-blue-500 mr-1" />
@@ -280,7 +281,7 @@ export default function Logs() {
                             <Upload className="h-4 w-4 text-green-500 ml-3 mr-1" />
                             <span className="text-sm font-medium">{networkStats.avgUpload} KB/s</span>
                         </div>
-                    </div>
+                    </div> */}
                 </div>
 
                 {/* Filters */}
@@ -377,7 +378,7 @@ export default function Logs() {
                                                 {getSortIcon('ip_address')}
                                             </button>
                                         </th>
-                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        {/* <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             <button 
                                                 className="flex items-center space-x-1 focus:outline-none"
                                                 onClick={() => requestSort('download')}
@@ -385,7 +386,7 @@ export default function Logs() {
                                                 <span>Bandwidth (Down/Up)</span>
                                                 {getSortIcon('download')}
                                             </button>
-                                        </th>
+                                        </th> */}
                                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             <button 
                                                 className="flex items-center space-x-1 focus:outline-none"
@@ -416,9 +417,9 @@ export default function Logs() {
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                     {device.ip_address || 'N/A'}
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                     {getBandwidthStatus(device.download, device.upload)}
-                                                </td>
+                                                </td> */}
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                     {getStatusBadge(device.status || 'Unknown')}
                                                 </td>
@@ -446,7 +447,7 @@ export default function Logs() {
                         <div className="absolute inset-0 overflow-hidden">
                             {/* Backdrop */}
                             <div 
-                                className="absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity" 
+                                className="absolute inset-0 bg-opacity-75 transition-opacity" 
                                 onClick={closeModal}
                                 style={{ opacity: modalVisible ? 1 : 0, transition: 'opacity 300ms ease-in-out' }}
                             ></div>
@@ -488,7 +489,7 @@ export default function Logs() {
                                                 <div className="bg-gray-50 p-4 rounded-lg">
                                                     <h4 className="text-sm font-medium text-gray-500 mb-2">Additional Information</h4>
                                                     <div className="space-y-2">
-                                                        <p className="text-sm"><span className="font-medium">Manufacturer:</span> {selectedDevice?.manufacturer || 'N/A'}</p>
+                                                        <p className="text-sm"><span className="font-medium">Device Type:</span> {selectedDevice?.device_type || 'N/A'}</p>
                                                         <p className="text-sm"><span className="font-medium">Created:</span> {formatDate(selectedDevice?.created_at || '')}</p>
                                                         <p className="text-sm"><span className="font-medium">Last Updated:</span> {formatDate(selectedDevice?.updated_at || '')}</p>
                                                     </div>

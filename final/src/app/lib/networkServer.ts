@@ -1,7 +1,8 @@
 import axios from "axios"
 import type { Networks, NetworkWithBandwidth, UnblockProp } from "./network"
 
-const url = "https://netdetect-api.vercel.app/networks/"
+// const url = "https://netdetect-api.vercel.app/networks/"
+const url = "http://localhost:8020/api/networks/"
 
 export const fetchNetworks = async (): Promise<Networks[]> =>{
     try{
@@ -28,7 +29,7 @@ export const fetchNetworksWithBandwidth = async (): Promise<NetworkWithBandwidth
 
 export const blockedNetworks = async(): Promise<Networks[]> => {
     try{
-        const res = await axios.get<Networks[]>(`${url}blocked`)
+        const res = await axios.get<Networks[]>(`${url}/status/online`)
         return res.data
     }
     catch(err){

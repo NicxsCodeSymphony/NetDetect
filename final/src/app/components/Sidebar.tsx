@@ -83,6 +83,9 @@ const Sidebar: React.FC = () => {
         { name: "Connected Devices", route: "pages/dashboard/connected-devices", icon: <FaMobileAlt /> },
         { name: "Bandwidth Usage", route: "pages/dashboard/bandwidth-usage", icon: <FaChartLine /> },
         { name: "Mac Filtering", route: "pages/dashboard/macFilter", icon: <FaFilter /> },
+        { name: "Bandwidth Prediction", route: "pages/dashboard/prediction", icon: <FaClipboardList /> },
+        { name: "Anomaly Detection", route: "pages/dashboard/anomaly", icon: <FaClipboardList /> },
+        { name: "Traffic Classification", route: "pages/dashboard/traffic", icon: <FaClipboardList /> },
         { 
             name: "Notifications", 
             route: "pages/dashboard/notifications", 

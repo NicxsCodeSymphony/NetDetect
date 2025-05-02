@@ -47,7 +47,7 @@ export default function Bandwidth() {
     const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
     const [activeSection, setActiveSection] = useState('all')
     const [hoveredCard, setHoveredCard] = useState<number | null>(null)
-    const [intervalTime, setIntervalTime] = useState(60000) 
+    const [intervalTime, setIntervalTime] = useState(30000) 
 
     const fetchData = useCallback(async (): Promise<void> => {
         setLoading(true)
@@ -122,7 +122,7 @@ export default function Bandwidth() {
     ]
 
     const changeInterval = (minutes: number) => {
-        setIntervalTime(minutes * 60 * 1000)
+        setIntervalTime(minutes * 1000)
     }
 
     interface TooltipProps {
@@ -167,22 +167,22 @@ export default function Bandwidth() {
                     <div className="flex items-center gap-4">
                         <div className="flex items-center bg-gray-100 rounded-lg overflow-hidden">
                             <button 
-                                onClick={() => changeInterval(0.5)} 
+                                onClick={() => changeInterval(0.05)} 
+                                className={`px-3 py-2 text-sm ${intervalTime === 5000 ? 'bg-blue-600 text-white' : 'hover:bg-gray-200'}`}
+                            >
+                                5s
+                            </button>
+                            <button 
+                                onClick={() => changeInterval(.1)} 
+                                className={`px-3 py-2 text-sm ${intervalTime === 10000 ? 'bg-blue-600 text-white' : 'hover:bg-gray-200'}`}
+                            >
+                                10
+                            </button>
+                            <button 
+                                onClick={() => changeInterval(.3)} 
                                 className={`px-3 py-2 text-sm ${intervalTime === 30000 ? 'bg-blue-600 text-white' : 'hover:bg-gray-200'}`}
                             >
                                 30s
-                            </button>
-                            <button 
-                                onClick={() => changeInterval(1)} 
-                                className={`px-3 py-2 text-sm ${intervalTime === 60000 ? 'bg-blue-600 text-white' : 'hover:bg-gray-200'}`}
-                            >
-                                1m
-                            </button>
-                            <button 
-                                onClick={() => changeInterval(5)} 
-                                className={`px-3 py-2 text-sm ${intervalTime === 300000 ? 'bg-blue-600 text-white' : 'hover:bg-gray-200'}`}
-                            >
-                                5m
                             </button>
                         </div>
                         
